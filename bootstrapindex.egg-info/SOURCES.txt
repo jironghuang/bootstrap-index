@@ -1,0 +1,9 @@
+README.md
+setup.py
+bootstrapindex/__init__.py
+bootstrapindex/bootstrapindex.py
+bootstrapindex.egg-info/PKG-INFO
+bootstrapindex.egg-info/SOURCES.txt
+bootstrapindex.egg-info/dependency_links.txt
+bootstrapindex.egg-info/not-zip-safe
+bootstrapindex.egg-info/top_level.txt

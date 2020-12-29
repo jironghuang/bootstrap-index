@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(name='bootstrapindex',
-      version='0.1.1',
+      version='0.1.2',
       description='Returns block bootstrap indexes for walk-forward analysis (expanding or sliding window)',
       long_description=long_description,
       long_description_content_type="text/markdown",

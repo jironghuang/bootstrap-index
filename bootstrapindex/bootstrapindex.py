@@ -103,8 +103,9 @@ class bootstrapindex(object):
         bootstrap = bootstrap_index(data)
         bootstrap.create_window_index()
         Out[93]: 
-        [[[0, 251], [252, 503]],
-         [[0, 503], [504, 755]],     
+        [[[5, 256], [257, 508]],
+         [[257, 508], [509, 760]],
+         [[509, 760], [761, 1012]],   
         ...
         """      
 
@@ -175,7 +176,7 @@ class bootstrapindex(object):
             raise ValueError('end_sample_index input must be of type int')           
         
         #Select proportion size if larger
-        sample_size_prop = round(end_sample_index * self.prop_block_bootstrap)
+        sample_size_prop = round((end_sample_index-start_sample_index) * self.prop_block_bootstrap)
         
         #if sample_size_prop > self.min_sample_size:
         if sample_size_prop > sample_size:            
@@ -213,21 +214,28 @@ class bootstrapindex(object):
             
             bootstrap = bootstrapindex(data, window='sliding', 
                                         num_samples_per_period=10, 
-                                        min_sample_size=300, 
+                                        min_sample_size=60, 
                                         prop_block_bootstrap=0.25, 
                                         days_block=252, 
                                         starting_index = 5
                                         )
             bootstrap.create_dictionary_window_n_bootstrap_index()
-            bootstrap.expanding_windows_w_bootstrap_info
-            Out[132]: 
+            bootstrap.expanding_windows_w_bootstrap_info   
             {1: {'in_sample_index': [5, 256],
               'out_sample_index': [257, 508],
-              'bootstrap_index': {'start_index': array([3, 1, 0, 1, 1, 4, 4, 2, 1, 3]),
-               'end_index': array([252, 250, 249, 250, 250, 253, 253, 251, 250, 252])}},
+              'bootstrap_index': {'start_index': array([103,  39,  19,  65,  65, 164, 151,  87,  63, 123]),
+               'end_index': array([166, 102,  82, 128, 128, 227, 214, 150, 126, 186])}},
              2: {'in_sample_index': [257, 508],
               'out_sample_index': [509, 760],
-              'bootstrap_index': {'start_index': array([ 98,  34,  14,  60,  60, 159, 203,  82,  58, 118]),    
+              'bootstrap_index': {'start_index': array([355, 291, 271, 317, 317, 416, 403, 339, 315, 375]),
+               'end_index': array([418, 354, 334, 380, 380, 479, 466, 402, 378, 438])}},
+             3: {'in_sample_index': [509, 760],
+              'out_sample_index': [761, 1012],
+              'bootstrap_index': {'start_index': array([607, 543, 523, 569, 569, 668, 655, 591, 567, 627]),
+               'end_index': array([670, 606, 586, 632, 632, 731, 718, 654, 630, 690])}},
+             4: {'in_sample_index': [761, 1012],
+              'out_sample_index': [1013, 1264],
+              'bootstrap_index': {'start_index': array([859, 795, 775, 821, 821, 920, 907, 843, 819, 879]),    
         ...
         """           
         
@@ -238,17 +246,24 @@ class bootstrapindex(object):
         
         for n in window_index:
             length += 1
-            #print(length)
+            print(length)
             self.expanding_windows_w_bootstrap_info[length] = {}
             self.expanding_windows_w_bootstrap_info[length]['in_sample_index'] = n[0]    
             self.expanding_windows_w_bootstrap_info[length]['out_sample_index'] = n[1]       
             
-            if (self.days_block * length) < self.min_sample_size:                         
-                min_sample_size_adj = self.days_block - 3  #3 is included to make minimum sample smaller than block of data considered
-            else:
-                min_sample_size_adj = self.min_sample_size  
+            if self.window == 'expanding':
+                if (self.days_block * length) < self.min_sample_size:                         
+                    min_sample_size_adj = self.days_block - 3  #3 is included to make minimum sample smaller than block of data considered
+                else:
+                    min_sample_size_adj = self.min_sample_size  
+                    
+            if self.window == 'sliding':               
+                if (self.days_block) < self.min_sample_size:                         
+                    min_sample_size_adj = self.days_block - 3  #3 is included to make minimum sample smaller than block of data considered
+                else:
+                    min_sample_size_adj = self.min_sample_size                 
             
-            bootstrap_index = self.extract_block_bootstrap_periods(sample_size=min_sample_size_adj, start_sample_index = 0, end_sample_index = n[0][1])   
+            bootstrap_index = self.extract_block_bootstrap_periods(sample_size=min_sample_size_adj, start_sample_index = n[0][0], end_sample_index = n[0][1])   
             
             
             self.expanding_windows_w_bootstrap_info[length]['bootstrap_index'] = bootstrap_index        
@@ -265,13 +280,11 @@ if __name__ == "__main__":
     
     bootstrap = bootstrapindex(data, window='sliding', 
                                 num_samples_per_period=10, 
-                                min_sample_size=300, 
+                                min_sample_size=60, 
                                 prop_block_bootstrap=0.25, 
                                 days_block=252, 
                                 starting_index = 5
                                 )
     bootstrap.create_dictionary_window_n_bootstrap_index()
     bootstrap.expanding_windows_w_bootstrap_info    
-    bootstrap.extract_block_bootstrap_periods(sample_size = 100, start_sample_index = 50, end_sample_index = 500)
-
     

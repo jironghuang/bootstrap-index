@@ -101,7 +101,7 @@ Out[143]:
 ```
 
 
-### Producing block boostrap indexes from all training set data chunks
+### Producing block boostrap indexes from all training set data chunks for sliding window
 
 ```
 import pandas as pd
@@ -141,5 +141,48 @@ bootstrap.expanding_windows_w_bootstrap_info
  4: {'in_sample_index': [761, 1012],
   'out_sample_index': [1013, 1264],
   'bootstrap_index': {'start_index': array([859, 795, 775, 821, 821, 920, 907, 843, 819, 879]),    
+...
+```
+
+### Producing block boostrap indexes from all training set data chunks for expanding window
+
+```
+import pandas as pd
+import numpy as np
+import random
+import io
+import requests
+from bootstrapindex import bootstrapindex
+
+url="https://github.com/jironghuang/trend_following/raw/main/quantopian_data/futures_incl_2016.csv"
+s=requests.get(url).content
+data=pd.read_csv(io.StringIO(s.decode('utf-8')))    
+data['Date'] = pd.to_datetime(data['Date'], format='%Y-%m-%d')
+data.set_index('Date', inplace=True)    
+
+bootstrap = bootstrapindex(data, window='expanding', 
+                            num_samples_per_period=10, 
+                            min_sample_size=60, 
+                            prop_block_bootstrap=0.25, 
+                            days_block=252, 
+                            starting_index = 5
+                            )
+bootstrap.create_dictionary_window_n_bootstrap_index()
+bootstrap.expanding_windows_w_bootstrap_info   
+{1: {'in_sample_index': [5, 256],
+  'out_sample_index': [257, 508],
+  'bootstrap_index': {'start_index': array([103,  39,  19,  65,  65, 164, 151,  87,  63, 123]),
+   'end_index': array([166, 102,  82, 128, 128, 227, 214, 150, 126, 186])}},
+ 2: {'in_sample_index': [5, 508],
+  'out_sample_index': [509, 760],
+  'bootstrap_index': {'start_index': array([202,  73,  33, 126, 125, 323, 298, 170, 121, 242]),
+   'end_index': array([328, 199, 159, 252, 251, 449, 424, 296, 247, 368])}},
+ 3: {'in_sample_index': [5, 760],
+  'out_sample_index': [761, 1012],
+  'bootstrap_index': {'start_index': array([399, 142,  62, 248, 246, 266,  87, 336, 237, 479]),
+   'end_index': array([588, 331, 251, 437, 435, 455, 276, 525, 426, 668])}},
+ 4: {'in_sample_index': [5, 1012],
+  'out_sample_index': [1013, 1264],
+  'bootstrap_index': {'start_index': array([399, 142,  62, 248, 246, 642, 592, 336, 237, 479]),
 ...
 ```
